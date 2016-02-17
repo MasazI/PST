@@ -23,7 +23,6 @@ class PST:
 
     def transform(self, image_path):
         image_org = io.imread(image_path)
-        #print image_org.shape
         image = rgb2gray(image_org)
 
         print image.shape
@@ -55,13 +54,12 @@ class PST:
         # low pass filter the original image to reduce noise
         image_f = np.fft.fft2(image)
         sigma = (self.LPF)**2/math.log(2)
-
         image_fftshift = np.fft.fftshift(np.exp(-(RHO/np.sqrt(sigma))**2))
         image_f = image_f * image_fftshift
         image_filtered = (np.fft.ifft2(image_f)).real
 
         PST_Kernel = (RHO*self.Warp_strength * np.arctan(RHO*self.Warp_strength) - 0.5 * np.log(1 + (RHO * self.Warp_strength)**2))
-        PST_Kernel = PST_Kernel / np.max(PST_Kernel) * self.Phase_strength
+        PST_Kernel = (PST_Kernel / np.max(PST_Kernel)).dot(self.Phase_strength)
 
         temp = np.fft.fft2(image_filtered) * np.fft.fftshift(np.exp(-1j * PST_Kernel))
         image_filtered_PST = np.fft.ifft2(temp)
@@ -72,7 +70,6 @@ class PST:
             out = PHI_features
         else:
             features = np.zeros(PHI_features.shape)
-
             features[PHI_features>self.Thresh_max] = 1
             features[PHI_features<self.Thresh_min] = 1
             features[image<np.max(image)/20] = 0
@@ -83,7 +80,7 @@ class PST:
         return np.sqrt(x*x + y*y), np.arctan2(x, y)
 
 if __name__ == '__main__':
-    image_path = 'tomato.tif'
+    image_path = 'tomato2.tif'
     pst = PST()
     edge, pst_kernel = pst.transform(image_path)
     plt.imshow(edge/np.max(edge)*3)
