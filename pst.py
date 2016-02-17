@@ -24,8 +24,7 @@ class PST:
     def transform(self, image_path):
         image_org = io.imread(image_path)
         image = rgb2gray(image_org)
-
-        print image.shape
+        image = image.astype(np.double)
 
         # define two dimentional cartesian vectors, X ans Y
         height = len(image)
@@ -59,7 +58,7 @@ class PST:
         image_filtered = (np.fft.ifft2(image_f)).real
 
         PST_Kernel = (RHO*self.Warp_strength * np.arctan(RHO*self.Warp_strength) - 0.5 * np.log(1 + (RHO * self.Warp_strength)**2))
-        PST_Kernel = (PST_Kernel / np.max(PST_Kernel)).dot(self.Phase_strength)
+        PST_Kernel = (PST_Kernel / np.max(PST_Kernel)) * self.Phase_strength
 
         temp = np.fft.fft2(image_filtered) * np.fft.fftshift(np.exp(-1j * PST_Kernel))
         image_filtered_PST = np.fft.ifft2(temp)
@@ -81,7 +80,7 @@ class PST:
         return np.sqrt(x*x + y*y), np.arctan2(y, x)
 
 if __name__ == '__main__':
-    image_path = 'lena.tif'
+    image_path = 'star.png'
     pst = PST()
     edge, pst_kernel = pst.transform(image_path)
     if pst.Morph_flag == 0:
