@@ -69,6 +69,7 @@ class PST:
         if self.Morph_flag == 0:
             out = PHI_features
         else:
+            # working
             features = np.zeros(PHI_features.shape)
             features[PHI_features>self.Thresh_max] = 1
             features[PHI_features<self.Thresh_min] = 1
@@ -80,10 +81,14 @@ class PST:
         return np.sqrt(x*x + y*y), np.arctan2(x, y)
 
 if __name__ == '__main__':
-    image_path = 'tomato2.tif'
+    image_path = 'lena.tif'
     pst = PST()
     edge, pst_kernel = pst.transform(image_path)
-    plt.imshow(edge/np.max(edge)*3)
+    if pst.Morph_flag == 0:
+        plt.imshow(edge/np.max(edge)*3)
+    else:
+        # working
+        pass
     plt.title('Detected features using PST')
     plt.show()
     print "finish"
