@@ -78,7 +78,7 @@ class PST:
         return out, PST_Kernel
 
     def cart2pol(self, x, y):
-        return np.sqrt(x*x + y*y), np.arctan2(x, y)
+        return np.sqrt(x*x + y*y), np.arctan2(y, x)
 
 if __name__ == '__main__':
     image_path = 'lena.tif'
