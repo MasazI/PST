@@ -5,8 +5,10 @@ import cv2
 import skimage
 from skimage import data
 from skimage import io
-from skimage import transform
 from skimage.color import rgb2gray
+
+from PIL import Image
+from matplotlib import pylab as plt
 
 import numpy as np
 
@@ -17,12 +19,14 @@ class PST:
         self.Warp_strength = 12.14
         self.Thresh_min = -1
         self.Thresh_max = 0.0019
-        self.Morph_flag = 1
+        self.Morph_flag = 0
 
     def transform(self, image_path):
         image_org = io.imread(image_path)
         #print image_org.shape
         image = rgb2gray(image_org)
+
+        print image.shape
 
         # define two dimentional cartesian vectors, X ans Y
         height = len(image)
@@ -68,15 +72,21 @@ class PST:
             out = PHI_features
         else:
             features = np.zeros(PHI_features.shape)
-            print features
 
-
+            features[PHI_features>self.Thresh_max] = 1
+            features[PHI_features<self.Thresh_min] = 1
+            features[image<np.max(image)/20] = 0
+            out = features
+        return out, PST_Kernel
 
     def cart2pol(self, x, y):
         return np.sqrt(x*x + y*y), np.arctan2(x, y)
 
 if __name__ == '__main__':
-    image_path = 'cat.jpg'
-    
+    image_path = 'tomato.tif'
     pst = PST()
-    pst.transform(image_path)
+    edge, pst_kernel = pst.transform(image_path)
+    plt.imshow(edge/np.max(edge)*3)
+    plt.title('Detected features using PST')
+    plt.show()
+    print "finish"
